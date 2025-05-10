@@ -14,14 +14,14 @@ class UserSeeder extends Seeder
             'name' => 'Admin',
             'email' => 'admin@gmail.com',
             'password' => bcrypt('password'),
-            'is_admin' => true,
+            'role' => 'admin',
         ]);
 
         User::create([
-            'name' => 'Client',
-            'email' => 'client@gmail.com',
+            'name' => 'Customer',
+            'email' => 'customer@gmail.com',
             'password' => bcrypt('password'),
-            'is_admin' => false,
+            'role' => 'customer',
         ]);
     }
 }
