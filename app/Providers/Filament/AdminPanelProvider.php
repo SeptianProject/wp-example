@@ -27,6 +27,7 @@ class AdminPanelProvider extends PanelProvider
             ->id('admin')
             ->path('admin')
             ->login()
+            ->brandName('Dashboard Admin')
             ->colors([
                 'primary' => Color::Amber,
             ])
@@ -41,6 +42,8 @@ class AdminPanelProvider extends PanelProvider
                 Widgets\FilamentInfoWidget::class,
             ])
             ->middleware([
+                'auth',
+                'role:admin',
                 EncryptCookies::class,
                 AddQueuedCookiesToResponse::class,
                 StartSession::class,
