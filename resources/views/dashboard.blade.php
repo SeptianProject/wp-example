@@ -19,28 +19,20 @@
                             <thead>
                                 <tr>
                                     <th class="py-2 px-4 border">Nama</th>
-                                    <th class="py-2 px-4 border">Lokasi</th>
-                                    <th class="py-2 px-4 border">Harga</th>
-                                    <th class="py-2 px-4 border">Luas Tanah</th>
-                                    <th class="py-2 px-4 border">Luas Bangunan</th>
-                                    <th class="py-2 px-4 border">Jarak dari Tempat Kerja</th>
-                                    <th class="py-2 px-4 border">Fasilitas</th>
-                                    <th class="py-2 px-4 border">Akses Transportasi</th>
+                                    @foreach ($houses as $house)
+                                        @foreach ($house->kriteria as $kriteria)
+                                            <th class="py-2 px-4 border">{{ $kriteria->nama }}</th>
+                                        @endforeach
+                                    @endforeach
                                 </tr>
                             </thead>
                             <tbody>
                                 @foreach ($houses as $house)
                                     <tr class="hover:bg-gray-100">
                                         <td class="py-2 px-4 border">{{ $house->nama }}</td>
-                                        <td class="py-2 px-4 border">{{ $house->lokasi }}</td>
-                                        <td class="py-2 px-4 border">
-                                            {{ number_format($house->harga, 0, ',', '.') }}
-                                        </td>
-                                        <td class="py-2 px-4 border">{{ $house->luas_tanah }} m²</td>
-                                        <td class="py-2 px-4 border">{{ $house->luas_bangunan }} m²</td>
-                                        <td class="py-2 px-4 border">{{ $house->jarak_tempuh }} km</td>
-                                        <td class="py-2 px-4 border">{{ $house->jumlah_fasilitas }}</td>
-                                        <td class="py-2 px-4 border">{{ $house->akses_transportasi }}</td>
+                                        @foreach ($house->kriteriaScores as $kriteriaScore)
+                                            <td class="py-2 px-4 border">{{ $kriteriaScore->nilai }}</td>
+                                        @endforeach
                                     </tr>
                                 @endforeach
                             </tbody>

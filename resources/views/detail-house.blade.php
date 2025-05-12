@@ -81,66 +81,27 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    @php
-                                        // Daftar kriteria yang digunakan dalam perhitungan
-                                        $criteriaList = [
-                                            ['field' => 'harga', 'label' => 'Harga', 'kode' => 'C', 'type' => 'cost'],
-                                            [
-                                                'field' => 'luas_tanah',
-                                                'label' => 'Luas Tanah',
-                                                'kode' => 'LT',
-                                                'type' => 'benefit',
-                                            ],
-                                            [
-                                                'field' => 'luas_bangunan',
-                                                'label' => 'Luas Bangunan',
-                                                'kode' => 'LB',
-                                                'type' => 'benefit',
-                                            ],
-                                            [
-                                                'field' => 'jarak_tempuh',
-                                                'label' => 'Jarak Tempuh',
-                                                'kode' => 'JTK',
-                                                'type' => 'cost',
-                                            ],
-                                            [
-                                                'field' => 'jumlah_fasilitas',
-                                                'label' => 'Jumlah Fasilitas',
-                                                'kode' => 'F',
-                                                'type' => 'benefit',
-                                            ],
-                                        ];
-
-                                        // Ambil kriteria dari database
-                                        $kriterias = \App\Models\Kriteria::all()->keyBy('kode');
-                                    @endphp
-
-                                    @foreach ($criteriaList as $criterion)
+                                    @foreach ($kriterias as $kriteria)
                                         <tr>
-                                            <td class="py-2 px-4 border-b font-medium">{{ $criterion['label'] }}</td>
+                                            <td class="py-2 px-4 border-b font-medium">{{ $kriteria->nama }}</td>
                                             <td class="py-2 px-4 border-b">
-                                                @if (isset($kriterias[$criterion['kode']]))
-                                                    {{ number_format($kriterias[$criterion['kode']]->bobot, 2) }}
-                                                @else
-                                                    @if ($criterion['type'] == 'cost')
-                                                        {{ $criterion['kode'] == 'C' ? '0.30' : '0.05' }}
-                                                    @else
-                                                        {{ $criterion['kode'] == 'LT' || $criterion['kode'] == 'LB' ? '0.15' : '0.10' }}
-                                                    @endif
-                                                @endif
+                                                {{ number_format($kriteria->bobot, 2) }}
                                             </td>
                                             <td class="py-2 px-4 border-b">
                                                 <span
-                                                    class="px-2 py-1 text-xs rounded-full {{ $criterion['type'] == 'benefit' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800' }}">
-                                                    {{ $criterion['type'] == 'benefit' ? 'Benefit' : 'Cost' }}
+                                                    class="px-2 py-1 text-xs rounded-full {{ $kriteria->jenis == 'benefit' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800' }}">
+                                                    {{ ucfirst($kriteria->jenis) }}
                                                 </span>
                                             </td>
                                             @foreach ($selectedHouses as $house)
                                                 <td class="py-2 px-4 border-b">
-                                                    @if ($criterion['field'] == 'harga')
-                                                        {{ number_format($house->{$criterion['field']}, 0, ',', '.') }}
+                                                    @php
+                                                        $field = strtolower($kriteria->field);
+                                                    @endphp
+                                                    @if ($field == 'harga')
+                                                        {{ number_format($house->$field, 0, ',', '.') }}
                                                     @else
-                                                        {{ $house->{$criterion['field']} }}
+                                                        {{ $house->$field }}
                                                     @endif
                                                 </td>
                                             @endforeach
@@ -155,16 +116,15 @@
                     <div class="p-6 border-t">
                         <h3 class="text-lg font-medium text-gray-700 mb-4">Matriks Perhitungan Vector S</h3>
                         <p class="mb-4 text-gray-600">Tabel berikut menunjukkan perhitungan nilai Vector S untuk setiap
-                            kriteria
-                            dan alternatif rumah.</p>
+                            kriteria dan alternatif rumah.</p>
 
                         <div class="overflow-x-auto">
                             <table class="min-w-full bg-white border border-gray-200">
                                 <thead>
                                     <tr>
                                         <th class="py-2 px-4 border-b">Alternatif</th>
-                                        @foreach ($criteriaList as $criterion)
-                                            <th class="py-2 px-4 border-b">{{ $criterion['label'] }}</th>
+                                        @foreach ($kriterias as $kriteria)
+                                            <th class="py-2 px-4 border-b">{{ $kriteria->nama }}</th>
                                         @endforeach
                                         <th class="py-2 px-4 border-b">Vector S</th>
                                     </tr>
@@ -173,23 +133,14 @@
                                     @foreach ($selectedHouses as $index => $house)
                                         <tr>
                                             <td class="py-2 px-4 border-b font-medium">{{ $house->nama }}</td>
-                                            @foreach ($criteriaList as $criterion)
+                                            @foreach ($kriterias as $kriteria)
                                                 <td class="py-2 px-4 border-b">
                                                     @php
-                                                        $weight = isset($kriterias[$criterion['kode']])
-                                                            ? $kriterias[$criterion['kode']]->bobot
-                                                            : ($criterion['type'] == 'cost'
-                                                                ? ($criterion['kode'] == 'C'
-                                                                    ? 0.3
-                                                                    : 0.05)
-                                                                : ($criterion['kode'] == 'LT' ||
-                                                                $criterion['kode'] == 'LB'
-                                                                    ? 0.15
-                                                                    : 0.1));
+                                                        $field = strtolower($kriteria->field);
+                                                        $weight = $kriteria->bobot;
+                                                        $value = $house->$field;
 
-                                                        $value = $house->{$criterion['field']};
-
-                                                        if ($criterion['type'] == 'cost') {
+                                                        if ($kriteria->jenis == 'cost') {
                                                             $calculation = pow(1 / max(0.001, $value), $weight);
                                                             echo "(1/{$value})<sup>{$weight}</sup> = " .
                                                                 number_format($calculation, 4);
@@ -207,14 +158,11 @@
                                         </tr>
                                     @endforeach
                                     <tr class="bg-gray-100">
-                                        <td class="py-2 px-4 border-b font-medium"
-                                            colspan="{{ count($criteriaList) + 1 }}">Jumlah
-                                            Total Vector S</td>
+                                        <td class="py-2 px-4 border-b font-medium" colspan="{{ count($kriterias) + 1 }}">
+                                            Jumlah Total Vector S
+                                        </td>
                                         <td class="py-2 px-4 border-b font-bold">
-                                            @php
-                                                $totalVectorS = array_sum(array_column($wpResults, 'vector_s'));
-                                                echo number_format($totalVectorS, 4);
-                                            @endphp
+                                            {{ number_format(array_sum(array_column($wpResults, 'vector_s')), 4) }}
                                         </td>
                                     </tr>
                                 </tbody>
@@ -226,8 +174,7 @@
                     <div class="p-6 border-t">
                         <h3 class="text-lg font-medium text-gray-700 mb-4">Matriks Perhitungan Vector V</h3>
                         <p class="mb-4 text-gray-600">Tabel berikut menunjukkan perhitungan nilai Vector V untuk setiap
-                            alternatif
-                            rumah.</p>
+                            alternatif rumah.</p>
 
                         <div class="overflow-x-auto">
                             <table class="min-w-full bg-white border border-gray-200">

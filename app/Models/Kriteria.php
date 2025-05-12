@@ -14,7 +14,7 @@ class Kriteria extends Model
         'kode',
         'bobot',
         'type',
-        'field_type'
+        // 'field_type'
     ];
 
     protected $casts = [

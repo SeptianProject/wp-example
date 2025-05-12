@@ -11,6 +11,7 @@ use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
+use Illuminate\Validation\Rule;
 
 class HouseKriteriaScoreResource extends Resource
 {
@@ -38,7 +39,21 @@ class HouseKriteriaScoreResource extends Resource
                     ->placeholder('Pilih Rumah')
                     ->label('Nama Rumah'),
                 Forms\Components\Select::make('kriteria_id')
-                    ->relationship('kriteria', 'nama')
+                    ->relationship('kriteria', 'nama', function ($query, $get, $set, $livewire) {
+                        if ($houseId = $get('house_id')) {
+                            $existingKriterias = \App\Models\HouseKriteriaScore::where('house_id', $houseId)
+                                ->pluck('kriteria_id')
+                                ->toArray();
+
+                            if ($livewire->record && $livewire->record->kriteria_id) {
+                                $existingKriterias = array_filter($existingKriterias, function ($id) use ($livewire) {
+                                    return $id != $livewire->record->kriteria_id;
+                                });
+                            }
+
+                            $query->whereNotIn('id', $existingKriterias);
+                        }
+                    })
                     ->searchable()
                     ->preload()
                     ->placeholder('Pilih Kriteria')
@@ -160,6 +175,10 @@ class HouseKriteriaScoreResource extends Resource
                     ->sortable()
                     ->searchable(),
                 TextColumn::make('kriteria.kode')
+                    ->label('Kode Kriteria')
+                    ->sortable()
+                    ->searchable(),
+                TextColumn::make('kriteria.nama')
                     ->label('Nama Kriteria')
                     ->sortable()
                     ->searchable(),
