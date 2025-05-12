@@ -15,7 +15,8 @@ return new class extends Migration
             $table->id();
             $table->foreignId('house_id')->constrained('houses')->onDelete('cascade');
             $table->foreignId('kriteria_id')->constrained('kriterias')->onDelete('cascade');
-            $table->double('nilai')->nullable();
+            $table->double('nilai');
+            $table->string('keterangan')->nullable();
             $table->timestamps();
         });
     }

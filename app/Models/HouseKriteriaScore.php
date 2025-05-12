@@ -13,6 +13,7 @@ class HouseKriteriaScore extends Model
         'house_id',
         'kriteria_id',
         'nilai',
+        'keterangan',
     ];
 
     public function house()
@@ -23,5 +24,19 @@ class HouseKriteriaScore extends Model
     public function kriteria()
     {
         return $this->belongsTo(Kriteria::class);
+    }
+
+    public function getJumlahFasilitasAttribute(): int
+    {
+        return is_array($this->fasilitas) ? count($this->fasilitas) : 0;
+    }
+
+    public function getFormattedNilaiAttribute()
+    {
+        if ($this->kriteria?->field_type === 'tags' && is_array($this->nilai)) {
+            return implode(', ', $this->nilai);
+        }
+
+        return $this->nilai;
     }
 }

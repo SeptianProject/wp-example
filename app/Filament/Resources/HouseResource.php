@@ -4,10 +4,6 @@ namespace App\Filament\Resources;
 
 use App\Filament\Resources\HouseResource\Pages;
 use App\Models\House;
-use Filament\Forms\Components\Group;
-use Filament\Forms\Components\Section;
-use Filament\Forms\Components\TagsInput;
-use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
@@ -28,45 +24,10 @@ class HouseResource extends Resource
     {
         return $form
             ->schema([
-                Section::make('Informasi Umum')
-                    ->schema([
-                        TextInput::make('nama')
-                            ->label('Nama Rumah')
-                            ->required()
-                            ->maxLength(255),
-                        TextInput::make('harga')
-                            ->label('Harga')
-                            ->required()
-                            ->numeric(),
-                        TextInput::make('lokasi')
-                            ->label('Lokasi')
-                            ->required()
-                            ->maxLength(255),
-                    ])->columns(3),
-                Section::make('Detail Rumah')
-                    ->schema([
-                        TextInput::make('luas_tanah')
-                            ->label('Luas Tanah (m²)')
-                            ->required()
-                            ->numeric(),
-                        TextInput::make('luas_bangunan')
-                            ->label('Luas Bangunan (m²)')
-                            ->required()
-                            ->numeric(),
-                        TextInput::make('jarak_tempuh')
-                            ->label('Jarak Tempuh (km)')
-                            ->required()
-                            ->numeric(),
-                    ])->columns(3),
-                Section::make('Fasilitas dan Akses')
-                    ->schema([
-                        TagsInput::make('fasilitas')
-                            ->label('Fasilitas'),
-                        Textarea::make('akses_transportasi')
-                            ->label('Akses Transportasi')
-                            ->required()
-                            ->maxLength(65535),
-                    ])->columns(2),
+                TextInput::make('nama')
+                    ->label('Nama Rumah')
+                    ->required()
+                    ->maxLength(255),
             ]);
     }
 
@@ -78,41 +39,40 @@ class HouseResource extends Resource
                     ->label('Nama Rumah')
                     ->sortable()
                     ->searchable(),
-                TextColumn::make('lokasi')
-                    ->label('Lokasi')
-                    ->tooltip(fn($record) => $record->lokasi)
-                    ->limit(20)
-                    ->formatStateUsing(fn($state) => str($state)->limit(20))
-                    ->sortable()
-                    ->searchable(),
-                TextColumn::make('harga')
-                    ->label('Harga')
+                TextColumn::make('kriteria.kode')
+                    ->label('Kode Kriteria')
                     ->sortable()
                     ->searchable()
-                    ->money('IDR', true),
-                TextColumn::make('luas_tanah')
-                    ->label('Luas Tanah')
-                    ->sortable()
-                    ->searchable(),
-                TextColumn::make('luas_bangunan')
-                    ->label('Luas Bangunan')
-                    ->sortable()
-                    ->searchable(),
-                TextColumn::make('fasilitas')
-                    ->label('Fasilitas')
-                    ->formatStateUsing(fn($state) => is_array($state) ? implode(', ', $state) : $state)
-                    ->tooltip(fn($state) => is_array($state) ? implode(', ', $state) : $state)
+                    ->formatStateUsing(function ($state) {
+                        return is_array($state) ? implode(', ', $state) : $state;
+                    }),
+                TextColumn::make('kriteria.nama')
+                    ->label('Nama Kriteria')
                     ->sortable()
                     ->searchable()
-                    ->limit(20),
-                TextColumn::make('akses_transportasi')
-                    ->label('Akses Transportasi')
+                    ->formatStateUsing(function ($state) {
+                        return is_array($state) ? implode(', ', $state) : $state;
+                    })
+                    ->limit(40)
+                    ->tooltip(fn($record) => $record->kriteria->pluck('nama')->implode(', ')),
+                TextColumn::make('kriteriaScores.nilai')
+                    ->label('Nilai Kriteria')
                     ->sortable()
-                    ->searchable(),
-                TextColumn::make('jarak_tempuh')
-                    ->label('Jarak Tempuh')
+                    ->searchable()
+                    ->formatStateUsing(function ($state) {
+                        return is_array($state) ? implode(', ', $state) : $state;
+                    })
+                    ->limit(100)
+                    ->tooltip(fn($record) => $record->kriteriaScores->pluck('nilai')->implode(', ')),
+                TextColumn::make('kriteriaScores.keterangan')
+                    ->label('Keterangan')
                     ->sortable()
-                    ->searchable(),
+                    ->searchable()
+                    ->formatStateUsing(function ($state) {
+                        return is_array($state) ? implode(', ', $state) : $state;
+                    })
+                    ->limit(100)
+                    ->tooltip(fn($record) => $record->kriteriaScores->pluck('keterangan')->implode(', ')),
             ])
             ->filters([
                 //

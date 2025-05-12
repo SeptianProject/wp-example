@@ -6,6 +6,7 @@ use App\Filament\Resources\KriteriaResource\Pages;
 use App\Models\Kriteria;
 use Filament\Forms\Components\Group;
 use Filament\Forms\Components\Section;
+use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
@@ -39,6 +40,23 @@ class KriteriaResource extends Resource
                             ->required()
                             ->numeric()
                             ->label('Bobot Kriteria'),
+                        Select::make('type')
+                            ->options([
+                                'benefit' => 'Benefit',
+                                'cost' => 'Cost',
+                            ])
+                            ->required()
+                            ->label('Tipe Kriteria'),
+                        // Select::make('field_type')
+                        //     ->options([
+                        //         'number' => 'Angka',
+                        //         'text' => 'Teks',
+                        //         'tags' => 'Tags/Multiple',
+                        //         'textarea' => 'Text Area',
+                        //     ])
+                        //     ->required()
+                        //     ->default('number')
+                        //     ->label('Tipe Input Field'),
                     ])->columns(3),
             ]);
     }
@@ -47,10 +65,6 @@ class KriteriaResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('id')
-                    ->label('ID')
-                    ->sortable()
-                    ->searchable(),
                 Tables\Columns\TextColumn::make('nama')
                     ->label('Nama Kriteria')
                     ->sortable()
@@ -68,7 +82,6 @@ class KriteriaResource extends Resource
                     ->sortable()
                     ->searchable()
                     ->badge(),
-                
             ])
             ->filters([
                 //

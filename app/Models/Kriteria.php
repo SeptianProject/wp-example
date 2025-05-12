@@ -13,6 +13,8 @@ class Kriteria extends Model
         'nama',
         'kode',
         'bobot',
+        'type',
+        'field_type'
     ];
 
     protected $casts = [
@@ -23,5 +25,15 @@ class Kriteria extends Model
     public function scores()
     {
         return $this->hasMany(HouseKriteriaScore::class);
+    }
+
+    public function isNumeric(): bool
+    {
+        return $this->field_type === 'number';
+    }
+
+    public function isTags(): bool
+    {
+        return $this->field_type === 'tags';
     }
 }

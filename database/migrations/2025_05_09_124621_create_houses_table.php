@@ -14,13 +14,6 @@ return new class extends Migration
         Schema::create('houses', function (Blueprint $table) {
             $table->id();
             $table->string('nama');
-            $table->string('lokasi');
-            $table->double('harga');
-            $table->double('luas_tanah');
-            $table->double('luas_bangunan');
-            $table->double('jarak_tempuh');
-            $table->json('fasilitas')->nullable();
-            $table->string('akses_transportasi');
             $table->timestamps();
         });
     }

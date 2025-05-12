@@ -16,6 +16,8 @@ return new class extends Migration
             $table->string('nama');
             $table->string('kode');
             $table->double('bobot');
+            $table->enum('type', ['benefit', 'cost']);
+            // $table->enum('field_type', ['number', 'text', 'tags', 'textarea'])->default('number');
             $table->timestamps();
         });
     }
