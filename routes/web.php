@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\HouseRecommendationController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -13,15 +14,11 @@ Route::get('/', function () {
     return redirect('/login');
 });
 
-Route::get('/dashboard', function () {
-    if (auth()->check()) {
-        if (auth()->user()->role === 'admin') {
-            return redirect(config('filament.path', '/admin'));
-        }
-        return view('dashboard');
-    }
-    return redirect('/login');
-})->middleware(['auth', 'verified'])->name('dashboard');
+Route::middleware(['auth', 'verified'])->group(function () {
+    Route::get('/dashboard', [HouseRecommendationController::class, 'index'])->name('dashboard');
+    Route::post('/dashboard', [HouseRecommendationController::class, 'compareHouses'])->name('compare.houses');
+    Route::get('/dashboard/compare', [HouseRecommendationController::class, 'compareHouses'])->name('compare.houses.index');
+});
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');

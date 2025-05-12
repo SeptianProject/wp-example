@@ -19,7 +19,7 @@ return new class extends Migration
             $table->double('luas_tanah');
             $table->double('luas_bangunan');
             $table->double('jarak_tempuh');
-            $table->string('fasilitas');
+            $table->json('fasilitas')->nullable();
             $table->string('akses_transportasi');
             $table->timestamps();
         });

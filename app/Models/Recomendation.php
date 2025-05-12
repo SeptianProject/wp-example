@@ -12,7 +12,7 @@ class Recommendation extends Model
     protected $fillable = [
         'user_id',
         'house_id',
-        'score',
+        'nilai',
     ];
 
     public function user()

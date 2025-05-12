@@ -14,7 +14,7 @@ class HouseKriteriaScoreSeeder extends Seeder
 
         foreach ($houses as $house) {
             foreach ($kriterias as $kriteria) {
-                \App\Models\HouseKriteriaScore::create([
+                \App\Models\HouseKriteriaScore::create([ 
                     'house_id' => $house->id,
                     'kriteria_id' => $kriteria->id,
                     'nilai' => match ($kriteria->code) {

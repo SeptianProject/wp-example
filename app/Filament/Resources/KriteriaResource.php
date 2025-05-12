@@ -63,10 +63,12 @@ class KriteriaResource extends Resource
                     ->label('Bobot Kriteria')
                     ->sortable()
                     ->searchable(),
-                Tables\Columns\TextColumn::make('created_at')
-                    ->label('Dibuat Pada')
-                    ->dateTime()
-                    ->sortable(),
+                Tables\Columns\TextColumn::make('type')
+                    ->label('Tipe Kriteria')
+                    ->sortable()
+                    ->searchable()
+                    ->badge(),
+                
             ])
             ->filters([
                 //

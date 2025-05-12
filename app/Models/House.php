@@ -20,6 +20,10 @@ class House extends Model
         'jarak_tempuh',
     ];
 
+    protected $casts = [
+        'fasilitas' => 'array',
+    ];
+
     public function kriteriaScores()
     {
         return $this->hasMany(HouseKriteriaScore::class);
@@ -28,5 +32,10 @@ class House extends Model
     public function recommendations()
     {
         return $this->hasMany(Recommendation::class);
+    }
+
+    public function getJumlahFasilitasAttribute(): int
+    {
+        return is_array($this->fasilitas) ? count($this->fasilitas) : 0;
     }
 }

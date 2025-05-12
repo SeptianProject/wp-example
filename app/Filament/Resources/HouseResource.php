@@ -6,6 +6,7 @@ use App\Filament\Resources\HouseResource\Pages;
 use App\Models\House;
 use Filament\Forms\Components\Group;
 use Filament\Forms\Components\Section;
+use Filament\Forms\Components\TagsInput;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
@@ -21,7 +22,7 @@ class HouseResource extends Resource
     protected static ?string $navigationGroup = 'House';
     protected static ?int $navigationSort = 1;
     protected static ?string $label = 'Rumah';
-    protected static ?string $pluralLabel = 'Daftar Rumah';
+    protected static ?string $pluralLabel = 'Daftar Data Rumah';
 
     public static function form(Form $form): Form
     {
@@ -33,14 +34,14 @@ class HouseResource extends Resource
                             ->label('Nama Rumah')
                             ->required()
                             ->maxLength(255),
-                        TextInput::make('lokasi')
-                            ->label('Lokasi')
-                            ->required()
-                            ->maxLength(255),
                         TextInput::make('harga')
                             ->label('Harga')
                             ->required()
                             ->numeric(),
+                        TextInput::make('lokasi')
+                            ->label('Lokasi')
+                            ->required()
+                            ->maxLength(255),
                     ])->columns(3),
                 Section::make('Detail Rumah')
                     ->schema([
@@ -59,10 +60,8 @@ class HouseResource extends Resource
                     ])->columns(3),
                 Section::make('Fasilitas dan Akses')
                     ->schema([
-                        Textarea::make('fasilitas')
-                            ->label('Fasilitas')
-                            ->required()
-                            ->maxLength(65535),
+                        TagsInput::make('fasilitas')
+                            ->label('Fasilitas'),
                         Textarea::make('akses_transportasi')
                             ->label('Akses Transportasi')
                             ->required()
@@ -81,6 +80,9 @@ class HouseResource extends Resource
                     ->searchable(),
                 TextColumn::make('lokasi')
                     ->label('Lokasi')
+                    ->tooltip(fn($record) => $record->lokasi)
+                    ->limit(20)
+                    ->formatStateUsing(fn($state) => str($state)->limit(20))
                     ->sortable()
                     ->searchable(),
                 TextColumn::make('harga')
@@ -98,8 +100,11 @@ class HouseResource extends Resource
                     ->searchable(),
                 TextColumn::make('fasilitas')
                     ->label('Fasilitas')
+                    ->formatStateUsing(fn($state) => is_array($state) ? implode(', ', $state) : $state)
+                    ->tooltip(fn($state) => is_array($state) ? implode(', ', $state) : $state)
                     ->sortable()
-                    ->searchable(),
+                    ->searchable()
+                    ->limit(20),
                 TextColumn::make('akses_transportasi')
                     ->label('Akses Transportasi')
                     ->sortable()
