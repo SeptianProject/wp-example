@@ -19,10 +19,11 @@
                             <thead>
                                 <tr>
                                     <th class="py-2 px-4 border">Nama</th>
-                                    @foreach ($houses as $house)
-                                        @foreach ($house->kriteria as $kriteria)
-                                            <th class="py-2 px-4 border">{{ $kriteria->nama }}</th>
-                                        @endforeach
+                                    @php
+                                        $kriterias = \App\Models\Kriteria::orderBy('id')->get();
+                                    @endphp
+                                    @foreach ($kriterias as $kriteria)
+                                        <th class="py-2 px-4 border">{{ $kriteria->nama }}</th>
                                     @endforeach
                                 </tr>
                             </thead>
@@ -30,8 +31,28 @@
                                 @foreach ($houses as $house)
                                     <tr class="hover:bg-gray-100">
                                         <td class="py-2 px-4 border">{{ $house->nama }}</td>
-                                        @foreach ($house->kriteriaScores as $kriteriaScore)
-                                            <td class="py-2 px-4 border">{{ $kriteriaScore->nilai }}</td>
+                                        @foreach ($kriterias as $kriteria)
+                                            <td class="py-2 px-4 border">
+                                                @php
+                                                    $nilaiKriteria = $house->kriteriaScores
+                                                        ->where('kriteria_id', $kriteria->id)
+                                                        ->first();
+                                                @endphp
+
+                                                @if ($nilaiKriteria)
+                                                    @if ($kriteria->kode == 'C')
+                                                        Rp {{ number_format($nilaiKriteria->nilai, 0, ',', '.') }}
+                                                    @elseif ($kriteria->kode == 'LT' || $kriteria->kode == 'LB')
+                                                        {{ $nilaiKriteria->nilai }} m²
+                                                    @elseif ($kriteria->kode == 'JTK')
+                                                        {{ $nilaiKriteria->nilai }} km
+                                                    @else
+                                                        {{ $nilaiKriteria->nilai }}
+                                                    @endif
+                                                @else
+                                                    <span class="text-gray-400">-</span>
+                                                @endif
+                                            </td>
                                         @endforeach
                                     </tr>
                                 @endforeach
@@ -52,8 +73,8 @@
                                     class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
                                     <option value="">-- Pilih Rumah --</option>
                                     @foreach ($houses as $house)
-                                        <option value="{{ $house->id }}">{{ $house->nama }}
-                                            ({{ $house->lokasi }})
+                                        <option value="{{ $house->id }}">
+                                            {{ $house->nama }}
                                         </option>
                                     @endforeach
                                 </select>
@@ -67,7 +88,7 @@
                                     <option value="">-- Pilih Rumah --</option>
                                     @foreach ($houses as $house)
                                         <option value="{{ $house->id }}">{{ $house->nama }}
-                                            ({{ $house->lokasi }})
+
                                         </option>
                                     @endforeach
                                 </select>
@@ -81,7 +102,7 @@
                                     <option value="">-- Pilih Rumah --</option>
                                     @foreach ($houses as $house)
                                         <option value="{{ $house->id }}">{{ $house->nama }}
-                                            ({{ $house->lokasi }})
+
                                         </option>
                                     @endforeach
                                 </select>

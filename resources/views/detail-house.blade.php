@@ -22,38 +22,33 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <tr>
-                                        <td class="py-2 px-4 border-b font-medium">Harga</td>
-                                        @foreach ($selectedHouses as $house)
-                                            <td class="py-2 px-4 border-b">
-                                                Rp {{ number_format($house->harga, 0, ',', '.') }}
-                                            </td>
-                                        @endforeach
-                                    </tr>
-                                    <tr>
-                                        <td class="py-2 px-4 border-b font-medium">Luas Tanah</td>
-                                        @foreach ($selectedHouses as $house)
-                                            <td class="py-2 px-4 border-b">{{ $house->luas_tanah }} m²</td>
-                                        @endforeach
-                                    </tr>
-                                    <tr>
-                                        <td class="py-2 px-4 border-b font-medium">Luas Bangunan</td>
-                                        @foreach ($selectedHouses as $house)
-                                            <td class="py-2 px-4 border-b">{{ $house->luas_bangunan }} m²</td>
-                                        @endforeach
-                                    </tr>
-                                    <tr>
-                                        <td class="py-2 px-4 border-b font-medium">Jumlah Fasilitas</td>
-                                        @foreach ($selectedHouses as $house)
-                                            <td class="py-2 px-4 border-b">{{ $house->jumlah_fasilitas }}</td>
-                                        @endforeach
-                                    </tr>
-                                    <tr>
-                                        <td class="py-2 px-4 border-b font-medium">Jarak Tempuh</td>
-                                        @foreach ($selectedHouses as $house)
-                                            <td class="py-2 px-4 border-b">{{ $house->jarak_tempuh }} km</td>
-                                        @endforeach
-                                    </tr>
+                                    @foreach ($house->kriteria as $kriteria)
+                                        <tr class="hover:bg-gray-100">
+                                            <td class="py-2 px-4 border-b">{{ $kriteria->nama }}</td>
+                                            @foreach ($selectedHouses as $selectedHouse)
+                                                <td class="py-2 px-4 border-b">
+                                                    @php
+                                                        $kriteriaScore = $selectedHouse
+                                                            ->kriteriaScores()
+                                                            ->where('kriteria_id', $kriteria->id)
+                                                            ->first();
+                                                    @endphp
+
+                                                    @if ($kriteriaScore)
+                                                        @if ($kriteria->kode == 'C')
+                                                            Rp. {{ number_format($kriteriaScore->nilai, 0, ',', '.') }}
+                                                        @else
+                                                            {{ $kriteriaScore->nilai }}
+                                                            <div class="text-xs text-gray-500">
+                                                                {{ $kriteriaScore->keterangan }}</div>
+                                                        @endif
+                                                    @else
+                                                        -
+                                                    @endif
+                                                </td>
+                                            @endforeach
+                                        </tr>
+                                    @endforeach
                                 </tbody>
                             </table>
                         </div>
@@ -81,27 +76,30 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    @foreach ($kriterias as $kriteria)
-                                        <tr>
+                                    @foreach ($house->kriteria as $kriteria)
+                                        <tr class="hover:bg-gray-100">
                                             <td class="py-2 px-4 border-b font-medium">{{ $kriteria->nama }}</td>
-                                            <td class="py-2 px-4 border-b">
-                                                {{ number_format($kriteria->bobot, 2) }}
+                                            <td class="py-2 px-4 border-b">{{ $kriteria->bobot }}</td>
+                                            <td class="py-2 px-4 border-b text-sm font-light text-gray-600">
+                                                {{ $kriteria->type == 'cost' ? 'Cost' : 'Benefit' }}
                                             </td>
-                                            <td class="py-2 px-4 border-b">
-                                                <span
-                                                    class="px-2 py-1 text-xs rounded-full {{ $kriteria->jenis == 'benefit' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800' }}">
-                                                    {{ ucfirst($kriteria->jenis) }}
-                                                </span>
-                                            </td>
-                                            @foreach ($selectedHouses as $house)
+                                            @foreach ($selectedHouses as $selectedHouse)
                                                 <td class="py-2 px-4 border-b">
                                                     @php
-                                                        $field = strtolower($kriteria->field);
+                                                        $kriteriaScore = $selectedHouse
+                                                            ->kriteriaScores()
+                                                            ->where('kriteria_id', $kriteria->id)
+                                                            ->first();
                                                     @endphp
-                                                    @if ($field == 'harga')
-                                                        {{ number_format($house->$field, 0, ',', '.') }}
+
+                                                    @if ($kriteriaScore)
+                                                        @if ($kriteria->kode == 'C')
+                                                            Rp. {{ number_format($kriteriaScore->nilai, 0, ',', '.') }}
+                                                        @else
+                                                            {{ $kriteriaScore->nilai }}
+                                                        @endif
                                                     @else
-                                                        {{ $house->$field }}
+                                                        -
                                                     @endif
                                                 </td>
                                             @endforeach
@@ -115,15 +113,17 @@
                     <!-- Matriks Perhitungan Vector S -->
                     <div class="p-6 border-t">
                         <h3 class="text-lg font-medium text-gray-700 mb-4">Matriks Perhitungan Vector S</h3>
-                        <p class="mb-4 text-gray-600">Tabel berikut menunjukkan perhitungan nilai Vector S untuk setiap
-                            kriteria dan alternatif rumah.</p>
+                        <p class="mb-4 text-gray-600">
+                            Tabel berikut menunjukkan perhitungan nilai Vector S untuk setiap
+                            kriteria dan alternatif rumah.
+                        </p>
 
                         <div class="overflow-x-auto">
                             <table class="min-w-full bg-white border border-gray-200">
                                 <thead>
                                     <tr>
                                         <th class="py-2 px-4 border-b">Alternatif</th>
-                                        @foreach ($kriterias as $kriteria)
+                                        @foreach ($house->kriteria as $kriteria)
                                             <th class="py-2 px-4 border-b">{{ $kriteria->nama }}</th>
                                         @endforeach
                                         <th class="py-2 px-4 border-b">Vector S</th>
@@ -133,16 +133,18 @@
                                     @foreach ($selectedHouses as $index => $house)
                                         <tr>
                                             <td class="py-2 px-4 border-b font-medium">{{ $house->nama }}</td>
-                                            @foreach ($kriterias as $kriteria)
+                                            @foreach ($house->kriteria as $kriteria)
                                                 <td class="py-2 px-4 border-b">
                                                     @php
-                                                        $field = strtolower($kriteria->field);
                                                         $weight = $kriteria->bobot;
-                                                        $value = $house->$field;
+                                                        $value = $house
+                                                            ->kriteriaScores()
+                                                            ->where('kriteria_id', $kriteria->id)
+                                                            ->first()->nilai;
 
-                                                        if ($kriteria->jenis == 'cost') {
+                                                        if ($kriteria->type == 'cost') {
                                                             $calculation = pow(1 / max(0.001, $value), $weight);
-                                                            echo "(1/{$value})<sup>{$weight}</sup> = " .
+                                                            echo "({$value})<sup>-{$weight}</sup> = " .
                                                                 number_format($calculation, 4);
                                                         } else {
                                                             $calculation = pow($value, $weight);
@@ -158,7 +160,8 @@
                                         </tr>
                                     @endforeach
                                     <tr class="bg-gray-100">
-                                        <td class="py-2 px-4 border-b font-medium" colspan="{{ count($kriterias) + 1 }}">
+                                        <td class="py-2 px-4 border-b font-medium"
+                                            colspan="{{ count($house->kriteria) + 1 }}">
                                             Jumlah Total Vector S
                                         </td>
                                         <td class="py-2 px-4 border-b font-bold">

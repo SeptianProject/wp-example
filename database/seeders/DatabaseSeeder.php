@@ -12,6 +12,7 @@ class DatabaseSeeder extends Seeder
             UserSeeder::class,
             KriteriaSeeder::class,
             HouseSeeder::class,
+            HouseKriteriaScoreSeeder::class,
         ]);
     }
 }
