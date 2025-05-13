@@ -265,7 +265,11 @@
                             </ul>
                         </div>
 
-                        <div class="mt-4 flex justify-end">
+                        <div class="mt-4 flex justify-between">
+                            <a href="{{ route('recommendations.history') }}"
+                                class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">
+                                Lihat Riwayat Rekomendasi
+                            </a>
                             <a href="{{ route('dashboard') }}"
                                 class="px-4 py-2 bg-gray-800 text-white rounded-md hover:bg-gray-700">
                                 Kembali ke Dashboard
