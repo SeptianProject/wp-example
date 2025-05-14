@@ -70,12 +70,10 @@
                             <div>
                                 <x-input-label for="house1" :value="__('Pilihan Rumah 1')" />
                                 <select id="house1" name="house1"
-                                    class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
+                                    class="house-select mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
                                     <option value="">-- Pilih Rumah --</option>
                                     @foreach ($houses as $house)
-                                        <option value="{{ $house->id }}">
-                                            {{ $house->nama }}
-                                        </option>
+                                        <option value="{{ $house->id }}">{{ $house->nama }}</option>
                                     @endforeach
                                 </select>
                                 <x-input-error :messages="$errors->get('house1')" class="mt-2" />
@@ -84,12 +82,10 @@
                             <div>
                                 <x-input-label for="house2" :value="__('Pilihan Rumah 2')" />
                                 <select id="house2" name="house2"
-                                    class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
+                                    class="house-select mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
                                     <option value="">-- Pilih Rumah --</option>
                                     @foreach ($houses as $house)
-                                        <option value="{{ $house->id }}">{{ $house->nama }}
-
-                                        </option>
+                                        <option value="{{ $house->id }}">{{ $house->nama }}</option>
                                     @endforeach
                                 </select>
                                 <x-input-error :messages="$errors->get('house2')" class="mt-2" />
@@ -98,12 +94,10 @@
                             <div>
                                 <x-input-label for="house3" :value="__('Pilihan Rumah 3')" />
                                 <select id="house3" name="house3"
-                                    class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
+                                    class="house-select mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
                                     <option value="">-- Pilih Rumah --</option>
                                     @foreach ($houses as $house)
-                                        <option value="{{ $house->id }}">{{ $house->nama }}
-
-                                        </option>
+                                        <option value="{{ $house->id }}">{{ $house->nama }}</option>
                                     @endforeach
                                 </select>
                                 <x-input-error :messages="$errors->get('house3')" class="mt-2" />
@@ -116,6 +110,40 @@
                             </x-primary-button>
                         </div>
                     </form>
+
+                    <script>
+                        document.addEventListener('DOMContentLoaded', function() {
+                            const houseSelects = document.querySelectorAll('.house-select');
+
+                            function updateAvailableOptions() {
+                                const selectedValues = Array.from(houseSelects)
+                                    .map(select => select.value)
+                                    .filter(value => value !== "");
+
+                                houseSelects.forEach(function(select) {
+                                    const currentValue = select.value;
+
+                                    Array.from(select.options).forEach(function(option) {
+                                        if (option.value === "") return;
+ 
+                                        if (option.value !== currentValue &&
+                                            selectedValues.includes(option.value)) {
+                                            option.disabled = true;
+                                            option.style.color = "#999";
+                                        } else {
+                                            option.disabled = false;
+                                            option.style.color = "";
+                                        }
+                                    });
+                                });
+                            }
+                            houseSelects.forEach(function(select) {
+                                select.addEventListener('change', updateAvailableOptions);
+                            });
+
+                            updateAvailableOptions();
+                        });
+                    </script>
                 </div>
             </div>
         </div>
