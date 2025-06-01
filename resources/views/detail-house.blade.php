@@ -22,7 +22,15 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    @foreach ($house->kriteria as $kriteria)
+                                    @php
+                                        $allKriteria = collect();
+                                        foreach ($selectedHouses as $selectedHouse) {
+                                            $allKriteria = $allKriteria->concat($selectedHouse->kriteria);
+                                        }
+                                        $uniqueKriteria = $allKriteria->unique('id')->sortBy('id');
+                                    @endphp
+
+                                    @foreach ($uniqueKriteria as $kriteria)
                                         <tr class="hover:bg-gray-100">
                                             <td class="py-2 px-4 border-b">{{ $kriteria->nama }}</td>
                                             @foreach ($selectedHouses as $selectedHouse)
@@ -76,7 +84,15 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    @foreach ($house->kriteria as $kriteria)
+                                    @php
+                                        $allKriteria = collect();
+                                        foreach ($selectedHouses as $selectedHouse) {
+                                            $allKriteria = $allKriteria->concat($selectedHouse->kriteria);
+                                        }
+                                        $uniqueKriteria = $allKriteria->unique('id')->sortBy('id');
+                                    @endphp
+
+                                    @foreach ($uniqueKriteria as $kriteria)
                                         <tr class="hover:bg-gray-100">
                                             <td class="py-2 px-4 border-b font-medium">{{ $kriteria->nama }}</td>
                                             <td class="py-2 px-4 border-b">{{ $kriteria->bobot }}</td>
@@ -123,7 +139,15 @@
                                 <thead>
                                     <tr>
                                         <th class="py-2 px-4 border-b">Alternatif</th>
-                                        @foreach ($house->kriteria as $kriteria)
+                                        @php
+                                            $allKriteria = collect();
+                                            foreach ($selectedHouses as $selectedHouse) {
+                                                $allKriteria = $allKriteria->concat($selectedHouse->kriteria);
+                                            }
+                                            $uniqueKriteria = $allKriteria->unique('id')->sortBy('id');
+                                        @endphp
+
+                                        @foreach ($uniqueKriteria as $kriteria)
                                             <th class="py-2 px-4 border-b">{{ $kriteria->nama }}</th>
                                         @endforeach
                                         <th class="py-2 px-4 border-b">Vector S</th>
@@ -133,35 +157,45 @@
                                     @foreach ($selectedHouses as $index => $house)
                                         <tr>
                                             <td class="py-2 px-4 border-b font-medium">{{ $house->nama }}</td>
-                                            @foreach ($house->kriteria as $kriteria)
+                                            @foreach ($uniqueKriteria as $kriteria)
                                                 <td class="py-2 px-4 border-b">
                                                     @php
                                                         $weight = $kriteria->bobot;
-                                                        $value = $house
+                                                        $kriteriaScore = $house
                                                             ->kriteriaScores()
                                                             ->where('kriteria_id', $kriteria->id)
-                                                            ->first()->nilai;
+                                                            ->first();
 
-                                                        if ($kriteria->type == 'cost') {
-                                                            $calculation = pow(1 / max(0.001, $value), $weight);
-                                                            echo "({$value})<sup>-{$weight}</sup> = " .
-                                                                number_format($calculation, 4);
+                                                        if ($kriteriaScore) {
+                                                            $value = $kriteriaScore->nilai;
+
+                                                            if ($kriteria->type == 'cost') {
+                                                                $calculation = pow(1 / max(0.001, $value), $weight);
+                                                                echo "({$value})<sup>-{$weight}</sup> = " .
+                                                                    number_format($calculation, 4);
+                                                            } else {
+                                                                $calculation = pow($value, $weight);
+                                                                echo "({$value})<sup>{$weight}</sup> = " .
+                                                                    number_format($calculation, 4);
+                                                            }
                                                         } else {
-                                                            $calculation = pow($value, $weight);
-                                                            echo "({$value})<sup>{$weight}</sup> = " .
-                                                                number_format($calculation, 4);
+                                                            echo '-';
                                                         }
                                                     @endphp
                                                 </td>
                                             @endforeach
                                             <td class="py-2 px-4 border-b font-bold">
-                                                {{ number_format($wpResults[$index]['vector_s'], 4) }}
+                                                @if (isset($wpResults[$index]['vector_s']))
+                                                    {{ number_format($wpResults[$index]['vector_s'], 4) }}
+                                                @else
+                                                    -
+                                                @endif
                                             </td>
                                         </tr>
                                     @endforeach
                                     <tr class="bg-gray-100">
                                         <td class="py-2 px-4 border-b font-medium"
-                                            colspan="{{ count($house->kriteria) + 1 }}">
+                                            colspan="{{ $uniqueKriteria->count() + 1 }}">
                                             Jumlah Total Vector S
                                         </td>
                                         <td class="py-2 px-4 border-b font-bold">

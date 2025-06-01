@@ -12,6 +12,7 @@ use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
+use Illuminate\View\View;
 
 class KriteriaResource extends Resource
 {
@@ -21,6 +22,13 @@ class KriteriaResource extends Resource
     protected static ?int $navigationSort = 1;
     protected static ?string $label = 'Kriteria';
     protected static ?string $pluralLabel = 'Daftar Kriteria';
+
+    public static function getTableContentFooter(): View
+    {
+        return view('filament.tables.columns.total-kriteria', [
+            'total' => Kriteria::sum('bobot'),
+        ]);
+    }
 
     public static function form(Form $form): Form
     {
@@ -39,7 +47,8 @@ class KriteriaResource extends Resource
                         TextInput::make('bobot')
                             ->required()
                             ->numeric()
-                            ->label('Bobot Kriteria'),
+                            ->label('Bobot Kriteria')
+                            ->helperText('Bobot akan dinormalisasi otomatis agar total selalu 1'),
                         Select::make('type')
                             ->options([
                                 'benefit' => 'Benefit',
@@ -47,16 +56,6 @@ class KriteriaResource extends Resource
                             ])
                             ->required()
                             ->label('Tipe Kriteria'),
-                        // Select::make('field_type')
-                        //     ->options([
-                        //         'number' => 'Angka',
-                        //         'text' => 'Teks',
-                        //         'tags' => 'Tags/Multiple',
-                        //         'textarea' => 'Text Area',
-                        //     ])
-                        //     ->required()
-                        //     ->default('number')
-                        //     ->label('Tipe Input Field'),
                     ])->columns(3),
             ]);
     }
@@ -75,6 +74,7 @@ class KriteriaResource extends Resource
                     ->searchable(),
                 Tables\Columns\TextColumn::make('bobot')
                     ->label('Bobot Kriteria')
+                    ->formatStateUsing(fn($state) => number_format($state, 2))
                     ->sortable()
                     ->searchable(),
                 Tables\Columns\TextColumn::make('type')
@@ -88,12 +88,14 @@ class KriteriaResource extends Resource
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
+                Tables\Actions\DeleteAction::make(),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make(),
                 ]),
-            ]);
+            ])
+            ->contentFooter(static::getTableContentFooter());
     }
 
     public static function getRelations(): array

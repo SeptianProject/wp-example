@@ -33,12 +33,9 @@ class HouseRecommendationController extends Controller
 
           $wpResults = $this->calculateWeightProduct($selectedHouses);
 
-          // Save the top recommendation to the database
           if (count($wpResults) > 0 && Auth::check()) {
-               // Get the house with the highest score (already sorted in calculateWeightProduct)
                $topRecommendation = $wpResults[0];
 
-               // Save to recommendations table
                Recommendation::create([
                     'user_id' => Auth::id(),
                     'house_id' => $topRecommendation['house_id'],
@@ -54,7 +51,6 @@ class HouseRecommendationController extends Controller
           $kriterias = Kriteria::all();
           $criteriaMap = [];
 
-          // mapping kriteria ke field
           foreach ($kriterias as $kriteria) {
                $field = $this->mapKriteriaToField($kriteria->kode);
                $type = $kriteria->type ?? ($this->isKriteriaCost($kriteria->kode) ? 'cost' : 'benefit');
@@ -63,7 +59,8 @@ class HouseRecommendationController extends Controller
                $criteriaMap[$field] = [
                     'bobot' => $weight,
                     'type' => $type,
-                    'kode' => $kriteria->kode
+                    'kode' => $kriteria->kode,
+                    'id' => $kriteria->id
                ];
           }
 
@@ -76,14 +73,19 @@ class HouseRecommendationController extends Controller
                $s = 1;
                foreach ($criteriaMap as $key => $criterion) {
                     $weight = abs($criterion['bobot']);
-                    $value = $this->getNumericValue($house, $key, $criterion['kode']);
 
-                    // bernilai negatif karena cost
-                    // jika nilai terlalu kecil, gunakan 0.001 untuk menghindari pembagian dengan 0
+                    $score = HouseKriteriaScore::where('house_id', $house->id)
+                         ->where('kriteria_id', $criterion['id'])
+                         ->first();
+
+                    $value = $score ? $score->nilai : 1;
+
+                    // Gunakan nilai minimum 0,001 untuk nilai 0 untuk menghindari masalah perhitungan
                     if ($criterion['type'] == 'cost') {
                          $s *= pow(1 / max(0.001, $value), $weight);
                     } else {
-                         $s *= pow($value, $weight);
+                         // Untuk kriteria benefit, gunakan setidaknya 0,001 untuk menghindari perkalian dengan 0
+                         $s *= pow(max(0.001, $value), $weight);
                     }
                }
 
@@ -152,7 +154,7 @@ class HouseRecommendationController extends Controller
                return 1;
           }
 
-          return $value;
+          return $value ?? 0;
      }
 
      private function mapKriteriaToField($kode)
