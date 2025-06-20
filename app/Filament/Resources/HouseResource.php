@@ -4,10 +4,13 @@ namespace App\Filament\Resources;
 
 use App\Filament\Resources\HouseResource\Pages;
 use App\Models\House;
+use Filament\Forms\Components\FileUpload;
+use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
+use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 
@@ -28,6 +31,11 @@ class HouseResource extends Resource
                     ->label('Nama Rumah')
                     ->required()
                     ->maxLength(255),
+                Textarea::make('description')
+                    ->label('Deskripsi')
+                    ->rows(3),
+                FileUpload::make('image')
+                    ->image(),
             ]);
     }
 
@@ -35,10 +43,20 @@ class HouseResource extends Resource
     {
         return $table
             ->columns([
+                ImageColumn::make('image')
+                    ->disk('public')
+                    ->visibility('public')
+                    ->square()
+                    ->size(100)
+                    ->label('Foto Rumah'),
                 TextColumn::make('nama')
                     ->label('Nama Rumah')
                     ->sortable()
                     ->searchable(),
+                TextColumn::make('description')
+                    ->label('Deskripsi Rumah')
+                    ->tooltip(fn($record) => $record->description)
+                    ->limit(50),
                 TextColumn::make('kriteria.kode')
                     ->label('Kode Kriteria')
                     ->sortable()

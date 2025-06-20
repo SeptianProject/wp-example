@@ -11,7 +11,14 @@ class House extends Model
 
     protected $fillable = [
         'nama',
+        'image',
+        'description',
     ];
+
+    public function getImageUrlAttribute()
+    {
+        return $this->image ? asset('storage/' . $this->image) : null;
+    }
 
     public function kriteria()
     {

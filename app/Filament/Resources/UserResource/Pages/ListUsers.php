@@ -12,6 +12,14 @@ class ListUsers extends ListRecords
 
     protected function getHeaderActions(): array
     {
-        return [];
+        return [
+            Actions\CreateAction::make()
+                ->label('Tambah Customer')
+                ->icon('heroicon-o-user-plus')
+                ->color('primary')
+                ->modalHeading('Tambah Customer')
+                ->modalSubmitActionLabel('Buat Customer')
+                ->successNotificationTitle('Customer Berhasil Dibuat')
+        ];
     }
 }

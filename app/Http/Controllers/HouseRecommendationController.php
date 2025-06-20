@@ -14,7 +14,7 @@ class HouseRecommendationController extends Controller
      public function index()
      {
           $houses = House::all();
-          return view('dashboard', compact('houses'));
+          return view('customer.dashboard', compact('houses'));
      }
 
      public function compareHouses(Request $request)
@@ -43,7 +43,7 @@ class HouseRecommendationController extends Controller
                ]);
           }
 
-          return view('detail-house', compact('selectedHouses', 'wpResults'));
+          return view('customer.houses.calculate', compact('selectedHouses', 'wpResults'));
      }
 
      private function calculateWeightProduct($houses)
@@ -187,7 +187,7 @@ class HouseRecommendationController extends Controller
                ->with('house')
                ->get();
 
-          return view('recommendations.history', compact('recommendations'));
+          return view('customer.histories.index', compact('recommendations'));
      }
 
      public function showRecommendation(Recommendation $recommendation)
@@ -209,12 +209,19 @@ class HouseRecommendationController extends Controller
 
           $kriteriaScores = $house->kriteriaScores()->with('kriteria')->get();
 
-          return view('recommendations.detail', [
+          return view('customer.histories.detail', [
                'recommendation' => $recommendation,
                'house' => $house,
                'criterias' => $criterias,
                'kriteriaScores' => $kriteriaScores,
                'result' => $result
           ]);
+     }
+
+     public function showHouseDetail($id)
+     {
+          $house = House::with('kriteriaScores.kriteria')->findOrFail($id);
+
+          return view('customer.houses.detail', compact('house'));
      }
 }

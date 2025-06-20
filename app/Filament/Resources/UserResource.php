@@ -18,9 +18,10 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 class UserResource extends Resource
 {
     protected static ?string $model = User::class;
-    protected static ?string $navigationIcon = 'heroicon-o-user';
-    protected static ?string $navigationGroup = 'User Management';
-    protected static ?int $navigationSort = 1;
+    protected static ?string $modelLabel = 'Customer';
+    protected static ?string $navigationIcon = 'heroicon-o-user-group';
+    protected static ?string $navigationGroup = 'Customer Management';
+    protected static ?int $navigationSort = 0;
 
     public static function form(Form $form): Form
     {
@@ -35,23 +36,19 @@ class UserResource extends Resource
                     ->email()
                     ->label('Email')
                     ->maxLength(255),
-                Forms\Components\Select::make('role')
-                    ->options([
-                        'admin' => 'Admin',
-                        'customer' => 'Customer',
-                    ])
+                Forms\Components\Hidden::make('role')
                     ->required()
-                    ->label('Role'),
+                    ->default('customer')
+                    ->disabled(),
                 Forms\Components\TextInput::make('password')
                     ->password()
                     ->dehydrated(fn($state) => ! blank($state))
                     ->required(fn(string $context): bool => $context === 'create')
                     ->label('Password')
-                    ->confirmed()
-                    ->minLength(8)
+                    ->minLength(4)
                     ->maxLength(255)
                     ->autocomplete('new-password'),
-                Forms\Components\TextInput::make('passwordConfirmation')
+                Forms\Components\TextInput::make('password_confirmation')
                     ->password()
                     ->label('Confirm Password')
                     ->same('password')
@@ -76,8 +73,16 @@ class UserResource extends Resource
                     ->badge()
                     ->sortable()
                     ->searchable()
+                    ->formatStateUsing(fn($state) => match ($state) {
+                        'admin' => 'Admin',
+                        'customer' => 'Customer',
+                        default => 'Unknown',
+                    })
                     ->icon('heroicon-o-user'),
             ])
+            ->modifyQueryUsing(function (Builder $query) {
+                return $query->where('role', 'customer');
+            })
             ->filters([
                 //
             ])
