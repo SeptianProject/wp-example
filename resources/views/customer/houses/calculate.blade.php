@@ -299,6 +299,16 @@
                             </ul>
                         </div>
 
+                        <div class="mt-6 p-4 bg-blue-50 rounded-lg border border-blue-200">
+                            <h4 class="font-medium text-blue-700 mb-2">Butuh bantuan atau informasi lebih lanjut?</h4>
+                            <p class="text-blue-600 mb-4">Anda dapat meminta pertemuan untuk mendiskusikan
+                                rekomendasi rumah atau pertanyaan lainnya.</p>
+                            <button type="button" id="requestMeetingBtn"
+                                class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">
+                                Ajukan Pertemuan
+                            </button>
+                        </div>
+
                         <div class="mt-4 flex justify-between">
                             <a href="{{ route('recommendations.history') }}"
                                 class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">
@@ -314,4 +324,71 @@
             </div>
         </div>
     </div>
+
+    <!-- Meeting Request Modal -->
+    <div id="meetingRequestModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden overflow-y-auto h-full w-full"
+        aria-modal="true">
+        <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+            <div class="mt-3 text-center">
+                <h3 class="text-lg leading-6 font-medium text-gray-900">Permintaan Pertemuan</h3>
+                <div class="mt-2 px-7 py-3">
+                    <p class="text-gray-700 mb-4">Apakah Anda ingin melakukan pertemuan??</p>
+                    <form id="meetingRequestForm" action="{{ route('meeting.request') }}" method="POST">
+                        @csrf
+                        <div class="flex justify-center space-x-3">
+                            <button type="button" id="cancelMeetingBtn"
+                                class="px-4 py-2 bg-gray-200 text-gray-800 rounded-md hover:bg-gray-300">
+                                Tidak
+                            </button>
+                            <button type="submit" id="submitMeetingBtn"
+                                class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">
+                                Ya, Saya Ingin Bertemu
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const requestMeetingBtn = document.getElementById('requestMeetingBtn');
+            const meetingRequestModal = document.getElementById('meetingRequestModal');
+            const cancelMeetingBtn = document.getElementById('cancelMeetingBtn');
+            const meetingRequestForm = document.getElementById('meetingRequestForm');
+            const submitMeetingBtn = document.getElementById('submitMeetingBtn');
+
+            if (requestMeetingBtn) {
+                requestMeetingBtn.addEventListener('click', function() {
+                    meetingRequestModal.classList.remove('hidden');
+                });
+            }
+
+            if (cancelMeetingBtn) {
+                cancelMeetingBtn.addEventListener('click', function() {
+                    meetingRequestModal.classList.add('hidden');
+                });
+            }
+
+            if (meetingRequestForm) {
+                meetingRequestForm.addEventListener('submit', function() {
+                    submitMeetingBtn.disabled = true;
+
+                    submitMeetingBtn.innerHTML =
+                        '<span class="inline-flex items-center">Memproses... <svg class="animate-spin ml-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg></span>';
+
+                    submitMeetingBtn.classList.add('opacity-75', 'cursor-not-allowed');
+
+                    return true;
+                });
+            }
+
+            meetingRequestModal.addEventListener('click', function(e) {
+                if (e.target === meetingRequestModal) {
+                    meetingRequestModal.classList.add('hidden');
+                }
+            });
+        });
+    </script>
 </x-app-layout>

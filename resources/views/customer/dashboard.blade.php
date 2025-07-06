@@ -9,10 +9,26 @@
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                 @php
-                    $upcomingMeetings = Auth::user()->meetings()->where('date', '>', now())->orderBy('date')->get();
+                    $upcomingMeetings = Auth::user()
+                        ->meetings()
+                        ->where(function ($query) {
+                            $query->where('status', 'confirmed')->where('date', '>', now());
+                        })
+                        ->orWhere(function ($query) {
+                            $query->where('status', 'requested')->where('customer_id', Auth::id());
+                        })
+                        ->orderBy('date')
+                        ->get();
+
+                    $cancelledMeetings = Auth::user()
+                        ->meetings()
+                        ->where('status', 'cancelled')
+                        ->orderBy('updated_at', 'desc')
+                        ->take(1)
+                        ->get();
                 @endphp
 
-                @if ($upcomingMeetings->count() > 0)
+                @if ($upcomingMeetings->count() > 0 || $cancelledMeetings->count() > 0)
                     <div id="meeting-notification" class="bg-blue-50 border-l-4 border-blue-500 p-4 mb-4">
                         <div class="flex items-start">
                             <div class="flex-shrink-0">
@@ -24,12 +40,28 @@
                                 </svg>
                             </div>
                             <div class="ml-3 flex-1">
-                                <h3 class="text-sm font-medium text-blue-800">Jadwal Pertemuan</h3>
+                                <h3 class="text-sm font-medium text-blue-800">Status Pertemuan</h3>
                                 <div class="mt-1 text-sm text-blue-700">
                                     @foreach ($upcomingMeetings as $meeting)
                                         <p class="mb-1">
-                                            <span
-                                                class="font-semibold">{{ \Carbon\Carbon::parse($meeting->date)->format('d M Y H:i') }}</span>
+                                            @if ($meeting->status === 'requested')
+                                                <span class="font-semibold text-yellow-600">Permintaan pertemuan Anda
+                                                    sedang diproses. Admin akan menghubungi Anda untuk mengatur
+                                                    jadwal.</span>
+                                            @else
+                                                <span
+                                                    class="font-semibold">{{ \Carbon\Carbon::parse($meeting->date)->format('d M Y H:i') }}</span>
+                                                @if ($meeting->description)
+                                                    - {{ $meeting->description }}
+                                                @endif
+                                            @endif
+                                        </p>
+                                    @endforeach
+
+                                    @foreach ($cancelledMeetings as $meeting)
+                                        <p class="mb-1">
+                                            <span class="font-semibold text-red-600">Pertemuan Anda telah
+                                                dibatalkan.</span>
                                             @if ($meeting->description)
                                                 - {{ $meeting->description }}
                                             @endif
@@ -204,7 +236,6 @@
                             document.getElementById('house3-input')
                         ];
 
-                        // Add description toggle functionality
                         const descriptionToggles = document.querySelectorAll('.description-toggle');
                         descriptionToggles.forEach(function(toggle) {
                             toggle.addEventListener('click', function() {
