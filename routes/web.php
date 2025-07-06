@@ -14,7 +14,7 @@ Route::get('/', function () {
     return redirect('/login');
 });
 
-Route::middleware(['auth', 'verified'])->group(function () {
+Route::middleware(['auth', 'verified', 'role:customer'])->group(function () {
     Route::get('/dashboard', [HouseRecommendationController::class, 'index'])
         ->name('dashboard');
     Route::post('/dashboard', [HouseRecommendationController::class, 'compareHouses'])
@@ -25,13 +25,14 @@ Route::middleware(['auth', 'verified'])->group(function () {
         ->name('dashboard.house.detail');
 });
 
-Route::middleware(['auth', 'verified'])->group(function () {
+Route::middleware(['auth', 'verified', 'role:customer'])->group(function () {
     Route::get('/recommendations/history', [HouseRecommendationController::class, 'userRecommendations'])
         ->name('recommendations.history');
     Route::get('/recommendations/{recommendation}', [HouseRecommendationController::class, 'showRecommendation'])
         ->name('recommendations.show');
     Route::get('/houses/detail', [HouseRecommendationController::class, 'detailHouses'])
         ->name('houses.detail');
+    Route::post('/meeting-request', [HouseRecommendationController::class, 'requestMeeting'])->name('meeting.request');
 });
 
 Route::middleware('auth')->group(function () {
