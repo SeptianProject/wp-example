@@ -6,6 +6,7 @@ use App\Models\House;
 use App\Models\Kriteria;
 use App\Models\HouseKriteriaScore;
 use App\Models\Recommendation;
+use App\Models\Meeting;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -106,55 +107,12 @@ class HouseRecommendationController extends Controller
                ];
           }
 
+          // sorting data dari tertinggi ke terendah
           usort($results, function ($a, $b) {
                return $b['vector_v'] <=> $a['vector_v'];
           });
 
           return $results;
-     }
-
-     private function getNumericValue($house, $key, $kode)
-     {
-          $score = HouseKriteriaScore::where('house_id', $house->id)
-               ->whereHas('kriteria', function ($query) use ($kode) {
-                    $query->where('kode', $kode);
-               })->first();
-
-          if ($score && $score->nilai !== null) {
-               return $score->nilai;
-          }
-
-          $value = $house->$key;
-
-          if (is_string($value)) {
-               if ($key == 'lokasi') {
-                    $locationMap = [
-                         'Jakarta' => 5,
-                         'Bandung' => 4,
-                         'Surabaya' => 4,
-                         'Yogyakarta' => 3,
-                         'Medan' => 3,
-                         'default' => 2.5
-                    ];
-
-                    return $locationMap[$value] ?? $locationMap['default'];
-               }
-
-               if ($key == 'akses_transportasi') {
-                    $transportMap = [
-                         'Dekat Jalan Raya' => 5,
-                         'Akses Mudah' => 4,
-                         'Transportasi Umum' => 3,
-                         'default' => 2
-                    ];
-
-                    return $transportMap[$value] ?? $transportMap['default'];
-               }
-
-               return 1;
-          }
-
-          return $value ?? 0;
      }
 
      private function mapKriteriaToField($kode)
@@ -223,5 +181,21 @@ class HouseRecommendationController extends Controller
           $house = House::with('kriteriaScores.kriteria')->findOrFail($id);
 
           return view('customer.houses.detail', compact('house'));
+     }
+
+     public function requestMeeting(Request $request)
+     {
+          if (!Auth::check()) {
+               return redirect()->route('login');
+          }
+
+          $meeting = Meeting::create([
+               'customer_id' => Auth::id(),
+               'date' => null,
+               'description' => null,
+               'status' => 'requested',
+          ]);
+
+          return redirect()->route('dashboard')->with('success', 'Permintaan pertemuan berhasil dikirim. Admin akan menghubungi Anda untuk mengatur jadwal pertemuan.');
      }
 }

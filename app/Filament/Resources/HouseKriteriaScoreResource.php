@@ -75,7 +75,7 @@ class HouseKriteriaScoreResource extends Resource
                 //     $kriteria = Kriteria::find($kriteriaId);
                 //     return $kriteria && $kriteria->field_type === 'number';
                 // }),
-                Forms\Components\TextArea::make('keterangan')
+                Forms\Components\Textarea::make('keterangan')
                     ->placeholder('Masukkan Keterangan')
                     ->label('Keterangan')
                     ->rows(3)

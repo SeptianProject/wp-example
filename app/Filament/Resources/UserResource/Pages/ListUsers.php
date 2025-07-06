@@ -14,6 +14,7 @@ class ListUsers extends ListRecords
     {
         return [
             Actions\CreateAction::make()
+                ->createAnother(false)
                 ->label('Tambah Customer')
                 ->icon('heroicon-o-user-plus')
                 ->color('primary')
