@@ -2,17 +2,13 @@
 
 namespace App\Filament\Resources;
 
-use App\Filament\Resources\HouseResource\Pages;
-use App\Models\House;
-use Filament\Forms\Components\FileUpload;
-use Filament\Forms\Components\Textarea;
-use Filament\Forms\Components\TextInput;
-use Filament\Forms\Form;
-use Filament\Resources\Resource;
+use Filament\Forms;
 use Filament\Tables;
-use Filament\Tables\Columns\ImageColumn;
-use Filament\Tables\Columns\TextColumn;
+use App\Models\House;
+use Filament\Forms\Form;
 use Filament\Tables\Table;
+use Filament\Resources\Resource;
+use App\Filament\Resources\HouseResource\Pages;
 
 class HouseResource extends Resource
 {
@@ -27,15 +23,17 @@ class HouseResource extends Resource
     {
         return $form
             ->schema([
-                TextInput::make('nama')
-                    ->label('Nama Rumah')
-                    ->required()
-                    ->maxLength(255),
-                Textarea::make('description')
-                    ->label('Deskripsi')
-                    ->rows(3),
-                FileUpload::make('image')
-                    ->image(),
+                Forms\Components\Section::make([
+                    Forms\Components\TextInput::make('nama')
+                        ->label('Nama Rumah')
+                        ->required()
+                        ->maxLength(255),
+                    Forms\Components\Textarea::make('description')
+                        ->label('Deskripsi')
+                        ->rows(5),
+                    Forms\Components\FileUpload::make('image')
+                        ->image(),
+                ])
             ]);
     }
 
@@ -43,28 +41,28 @@ class HouseResource extends Resource
     {
         return $table
             ->columns([
-                ImageColumn::make('image')
+                Tables\Columns\ImageColumn::make('image')
                     ->disk('public')
                     ->visibility('public')
                     ->square()
                     ->size(100)
                     ->label('Foto Rumah'),
-                TextColumn::make('nama')
+                Tables\Columns\TextColumn::make('nama')
                     ->label('Nama Rumah')
                     ->sortable()
                     ->searchable(),
-                TextColumn::make('description')
+                Tables\Columns\TextColumn::make('description')
                     ->label('Deskripsi Rumah')
                     ->tooltip(fn($record) => $record->description)
                     ->limit(50),
-                TextColumn::make('kriteria.kode')
+                Tables\Columns\TextColumn::make('kriteria.kode')
                     ->label('Kode Kriteria')
                     ->sortable()
                     ->searchable()
                     ->formatStateUsing(function ($state) {
                         return is_array($state) ? implode(', ', $state) : $state;
                     }),
-                TextColumn::make('kriteria.nama')
+                Tables\Columns\TextColumn::make('kriteria.nama')
                     ->label('Nama Kriteria')
                     ->sortable()
                     ->searchable()
@@ -73,7 +71,7 @@ class HouseResource extends Resource
                     })
                     ->limit(40)
                     ->tooltip(fn($record) => $record->kriteria->pluck('nama')->implode(', ')),
-                TextColumn::make('kriteriaScores.nilai')
+                Tables\Columns\TextColumn::make('kriteriaScores.nilai')
                     ->label('Nilai Kriteria')
                     ->sortable()
                     ->searchable()
@@ -82,7 +80,7 @@ class HouseResource extends Resource
                     })
                     ->limit(100)
                     ->tooltip(fn($record) => $record->kriteriaScores->pluck('nilai')->implode(', ')),
-                TextColumn::make('kriteriaScores.keterangan')
+                Tables\Columns\TextColumn::make('kriteriaScores.keterangan')
                     ->label('Keterangan')
                     ->sortable()
                     ->searchable()

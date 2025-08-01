@@ -50,21 +50,6 @@ class HouseRecommendationController extends Controller
      private function calculateWeightProduct($houses)
      {
           $kriterias = Kriteria::all();
-          $criteriaMap = [];
-
-          foreach ($kriterias as $kriteria) {
-               $field = $this->mapKriteriaToField($kriteria->kode);
-               $type = $kriteria->type ?? ($this->isKriteriaCost($kriteria->kode) ? 'cost' : 'benefit');
-               $weight = $type == 'cost' ? -1 * $kriteria->bobot : $kriteria->bobot;
-
-               $criteriaMap[$field] = [
-                    'bobot' => $weight,
-                    'type' => $type,
-                    'kode' => $kriteria->kode,
-                    'id' => $kriteria->id
-               ];
-          }
-
           $results = [];
           $vectorS = [];
           $sumVectorS = 0;
@@ -72,17 +57,18 @@ class HouseRecommendationController extends Controller
           // menghitung nilai vektor s
           foreach ($houses as $house) {
                $s = 1;
-               foreach ($criteriaMap as $key => $criterion) {
-                    $weight = abs($criterion['bobot']);
+               foreach ($kriterias as $kriteria) {
+                    $type = $kriteria->type;
+                    $weight = abs($kriteria->bobot);
 
                     $score = HouseKriteriaScore::where('house_id', $house->id)
-                         ->where('kriteria_id', $criterion['id'])
+                         ->where('kriteria_id', $kriteria->id)
                          ->first();
 
                     $value = $score ? $score->nilai : 1;
 
                     // Gunakan nilai minimum 0,001 untuk nilai 0 untuk menghindari masalah perhitungan
-                    if ($criterion['type'] == 'cost') {
+                    if ($type == 'cost') {
                          $s *= pow(1 / max(0.001, $value), $weight);
                     } else {
                          // Untuk kriteria benefit, gunakan setidaknya 0,001 untuk menghindari perkalian dengan 0
@@ -115,26 +101,7 @@ class HouseRecommendationController extends Controller
           return $results;
      }
 
-     private function mapKriteriaToField($kode)
-     {
-          $mapping = [
-               'C' => 'harga',
-               'L' => 'lokasi',
-               'LT' => 'luas_tanah',
-               'LB' => 'luas_bangunan',
-               'F' => 'jumlah_fasilitas',
-               'AT' => 'akses_transportasi',
-               'JTK' => 'jarak_tempuh'
-          ];
-
-          return $mapping[$kode] ?? $kode;
-     }
-
-     private function isKriteriaCost($kode)
-     {
-          return in_array($kode, ['C', 'JTK']);
-     }
-
+     // menampilkan rekomendasi rumah berdasarkan user yang login
      public function userRecommendations()
      {
           if (!Auth::check()) {
@@ -148,6 +115,7 @@ class HouseRecommendationController extends Controller
           return view('customer.histories.index', compact('recommendations'));
      }
 
+     // menampilkan detail rekomendasi rumah
      public function showRecommendation(Recommendation $recommendation)
      {
           if ($recommendation->user_id !== Auth::id()) {
@@ -176,6 +144,7 @@ class HouseRecommendationController extends Controller
           ]);
      }
 
+     // menampilkan detail rumah
      public function showHouseDetail($id)
      {
           $house = House::with('kriteriaScores.kriteria')->findOrFail($id);
@@ -183,6 +152,7 @@ class HouseRecommendationController extends Controller
           return view('customer.houses.detail', compact('house'));
      }
 
+     // mengirim permintaan pertemuan
      public function requestMeeting(Request $request)
      {
           if (!Auth::check()) {

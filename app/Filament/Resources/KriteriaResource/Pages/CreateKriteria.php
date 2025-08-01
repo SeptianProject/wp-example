@@ -14,4 +14,9 @@ class CreateKriteria extends CreateRecord
     {
         return $this->getResource()::getUrl('index');
     }
+
+    protected function getCreateAnotherFormAction(): Actions\Action
+    {
+        return parent::getCreateAnotherFormAction()->hidden();
+    }
 }

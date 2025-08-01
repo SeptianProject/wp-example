@@ -2,21 +2,13 @@
 
 namespace App\Filament\Resources;
 
-use App\Filament\Resources\KriteriaResource\Pages;
-use App\Models\Kriteria;
-use App\Services\KriteriaWeightManager;
-use Filament\Forms\Components\Group;
-use Filament\Forms\Components\Section;
-use Filament\Forms\Components\Select;
-use Filament\Forms\Components\TextInput;
-use Filament\Forms\Components\View;
-use Filament\Forms\Form;
-use Filament\Forms\Get;
-use Filament\Notifications\Notification;
-use Filament\Resources\Resource;
+use Filament\Forms;
 use Filament\Tables;
+use App\Models\Kriteria;
+use Filament\Forms\Form;
 use Filament\Tables\Table;
-use Illuminate\View\View as IlluminateView;
+use Filament\Resources\Resource;
+use App\Filament\Resources\KriteriaResource\Pages;
 
 class KriteriaResource extends Resource
 {
@@ -42,17 +34,17 @@ class KriteriaResource extends Resource
 
         return $form
             ->schema([
-                Section::make('Informasi Kriteria')
+                Forms\Components\Section::make('Informasi Kriteria')
                     ->schema([
-                        TextInput::make('nama')
+                        Forms\Components\TextInput::make('nama')
                             ->required()
                             ->maxLength(255)
                             ->label('Nama Kriteria'),
-                        TextInput::make('kode')
+                        Forms\Components\TextInput::make('kode')
                             ->required()
                             ->maxLength(255)
                             ->label('Kode Kriteria'),
-                        TextInput::make('bobot')
+                        Forms\Components\TextInput::make('bobot')
                             ->required()
                             ->numeric()
                             ->minValue(0.01)
@@ -65,7 +57,7 @@ class KriteriaResource extends Resource
                                 $available = round(1 - $totalOtherWeight, 4);
                                 return "Sisa bobot tersedia: {$available}. Total semua bobot akan otomatis disesuaikan menjadi 1.";
                             }),
-                        Select::make('type')
+                        Forms\Components\Select::make('type')
                             ->options([
                                 'benefit' => 'Benefit',
                                 'cost' => 'Cost',
@@ -74,7 +66,7 @@ class KriteriaResource extends Resource
                             ->label('Tipe Kriteria'),
                     ])->columns(2),
 
-                View::make('filament.components.kriteria-weight-info')
+                Forms\Components\View::make('filament.components.kriteria-weight-info')
                     ->visible(fn() => Kriteria::count() > 0),
             ]);
     }

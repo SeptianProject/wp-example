@@ -4,7 +4,6 @@ namespace App\Filament\Resources\HouseKriteriaScoreResource\Pages;
 
 use App\Filament\Resources\HouseKriteriaScoreResource;
 use Filament\Actions;
-use Filament\Actions\Action;
 use Filament\Resources\Pages\CreateRecord;
 
 class CreateHouseKriteriaScore extends CreateRecord
@@ -16,7 +15,7 @@ class CreateHouseKriteriaScore extends CreateRecord
         return $this->getResource()::getUrl('index');
     }
 
-    protected function getCreateAnotherFormAction(): Action
+    protected function getCreateAnotherFormAction(): Actions\Action
     {
         return parent::getCreateAnotherFormAction()->hidden();
     }

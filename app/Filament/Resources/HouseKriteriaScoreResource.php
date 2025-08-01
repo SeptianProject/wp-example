@@ -2,16 +2,13 @@
 
 namespace App\Filament\Resources;
 
-use App\Filament\Resources\HouseKriteriaScoreResource\Pages;
-use App\Models\HouseKriteriaScore;
-use App\Models\Kriteria;
 use Filament\Forms;
-use Filament\Forms\Form;
-use Filament\Resources\Resource;
 use Filament\Tables;
-use Filament\Tables\Columns\TextColumn;
+use Filament\Forms\Form;
 use Filament\Tables\Table;
-use Illuminate\Validation\Rule;
+use Filament\Resources\Resource;
+use App\Models\HouseKriteriaScore;
+use App\Filament\Resources\HouseKriteriaScoreResource\Pages;
 
 class HouseKriteriaScoreResource extends Resource
 {
@@ -41,7 +38,7 @@ class HouseKriteriaScoreResource extends Resource
                 Forms\Components\Select::make('kriteria_id')
                     ->relationship('kriteria', 'nama', function ($query, $get, $set, $livewire) {
                         if ($houseId = $get('house_id')) {
-                            $existingKriterias = \App\Models\HouseKriteriaScore::where('house_id', $houseId)
+                            $existingKriterias = HouseKriteriaScore::where('house_id', $houseId)
                                 ->pluck('kriteria_id')
                                 ->toArray();
 
@@ -68,101 +65,11 @@ class HouseKriteriaScoreResource extends Resource
                     ->numeric()
                     ->placeholder('Masukkan Nilai Kriteria')
                     ->label('Nilai Kriteria'),
-                // ->visible(function ($get) {
-                //     $kriteriaId = $get('kriteria_id');
-                //     if (!$kriteriaId) return true;
-
-                //     $kriteria = Kriteria::find($kriteriaId);
-                //     return $kriteria && $kriteria->field_type === 'number';
-                // }),
                 Forms\Components\Textarea::make('keterangan')
                     ->placeholder('Masukkan Keterangan')
                     ->label('Keterangan')
                     ->rows(3)
                     ->nullable(),
-                // Forms\Components\TextInput::make('nilai_text')
-                //     ->required()
-                //     ->placeholder('Masukkan Nilai Kriteria')
-                //     ->label('Nilai Kriteria')
-                //     ->visible(function ($get) {
-                //         $kriteriaId = $get('kriteria_id');
-                //         if (!$kriteriaId) return false;
-
-                //         $kriteria = Kriteria::find($kriteriaId);
-                //         return $kriteria && $kriteria->field_type === 'text';
-                //     })
-                //     ->afterStateHydrated(function ($component, $state, $record) {
-                //         if ($record && $record->kriteria && $record->kriteria->field_type === 'text') {
-                //             $component->state($record->nilai);
-                //         }
-                //     })
-                //     ->dehydrated(function ($get) {
-                //         $kriteriaId = $get('kriteria_id');
-                //         if (!$kriteriaId) return false;
-
-                //         $kriteria = Kriteria::find($kriteriaId);
-                //         return $kriteria && $kriteria->field_type === 'text';
-                //     })
-                //     ->saveRelationshipsUsing(function ($state, $record) {
-                //         $record->nilai = $state;
-                //         $record->save();
-                //     }),
-
-                // Forms\Components\TagsInput::make('nilai_tags')
-                //     ->required()
-                //     ->placeholder('Masukkan Nilai Kriteria')
-                //     ->label('Nilai Kriteria')
-                //     ->visible(function ($get) {
-                //         $kriteriaId = $get('kriteria_id');
-                //         if (!$kriteriaId) return false;
-
-                //         $kriteria = Kriteria::find($kriteriaId);
-                //         return $kriteria && $kriteria->field_type === 'tags';
-                //     })
-                //     ->afterStateHydrated(function ($component, $state, $record) {
-                //         if ($record && $record->kriteria && $record->kriteria->field_type === 'tags') {
-                //             $component->state($record->nilai);
-                //         }
-                //     })
-                //     ->dehydrated(function ($get) {
-                //         $kriteriaId = $get('kriteria_id');
-                //         if (!$kriteriaId) return false;
-
-                //         $kriteria = Kriteria::find($kriteriaId);
-                //         return $kriteria && $kriteria->field_type === 'tags';
-                //     })
-                //     ->saveRelationshipsUsing(function ($state, $record) {
-                //         $record->nilai = $state;
-                //         $record->save();
-                //     }),
-
-                // Forms\Components\Textarea::make('nilai_textarea')
-                //     ->required()
-                //     ->placeholder('Masukkan Nilai Kriteria')
-                //     ->label('Nilai Kriteria')
-                //     ->visible(function ($get) {
-                //         $kriteriaId = $get('kriteria_id');
-                //         if (!$kriteriaId) return false;
-
-                //         $kriteria = Kriteria::find($kriteriaId);
-                //         return $kriteria && $kriteria->field_type === 'textarea';
-                //     })
-                //     ->afterStateHydrated(function ($component, $state, $record) {
-                //         if ($record && $record->kriteria && $record->kriteria->field_type === 'textarea') {
-                //             $component->state($record->nilai);
-                //         }
-                //     })
-                //     ->dehydrated(function ($get) {
-                //         $kriteriaId = $get('kriteria_id');
-                //         if (!$kriteriaId) return false;
-
-                //         $kriteria = Kriteria::find($kriteriaId);
-                //         return $kriteria && $kriteria->field_type === 'textarea';
-                //     })
-                //     ->saveRelationshipsUsing(function ($state, $record) {
-                //         $record->nilai = $state;
-                //         $record->save();
-                //     }),
             ]);
     }
 
@@ -170,19 +77,19 @@ class HouseKriteriaScoreResource extends Resource
     {
         return $table
             ->columns([
-                TextColumn::make('house.nama')
+                Tables\Columns\TextColumn::make('house.nama')
                     ->label('Nama Rumah')
                     ->sortable()
                     ->searchable(),
-                TextColumn::make('kriteria.kode')
+                Tables\Columns\TextColumn::make('kriteria.kode')
                     ->label('Kode Kriteria')
                     ->sortable()
                     ->searchable(),
-                TextColumn::make('kriteria.nama')
+                Tables\Columns\TextColumn::make('kriteria.nama')
                     ->label('Nama Kriteria')
                     ->sortable()
                     ->searchable(),
-                TextColumn::make('nilai')
+                Tables\Columns\TextColumn::make('nilai')
                     ->label('Nilai')
                     ->formatStateUsing(function ($record) {
                         if (!$record->kriteria) return $record->nilai;
@@ -195,7 +102,7 @@ class HouseKriteriaScoreResource extends Resource
                     })
                     ->sortable()
                     ->searchable(),
-                TextColumn::make('keterangan')
+                Tables\Columns\TextColumn::make('keterangan')
                     ->label('Keterangan')
                     ->sortable()
                     ->searchable()

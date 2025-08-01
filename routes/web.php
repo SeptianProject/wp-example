@@ -14,6 +14,8 @@ Route::get('/', function () {
     return redirect('/login');
 });
 
+Route::get('/home', [HouseRecommendationController::class, 'index'])->name('home');
+
 Route::middleware(['auth', 'verified', 'role:customer'])->group(function () {
     Route::get('/dashboard', [HouseRecommendationController::class, 'index'])
         ->name('dashboard');
